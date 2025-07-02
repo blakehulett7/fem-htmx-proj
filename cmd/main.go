@@ -52,24 +52,56 @@ func NewData() Data {
 	}
 }
 
+type FormData struct {
+	Values map[string]string
+	Errors map[string]string
+}
+
+func newFormData() FormData {
+	return FormData{
+		Values: make(map[string]string),
+		Errors: make(map[string]string),
+	}
+}
+
+type Page struct {
+	Data Data
+	Form FormData
+}
+
+func newPage() Page {
+	return Page{
+		Data: NewData(),
+		Form: newFormData(),
+	}
+}
+
 func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
 
-	data := NewData()
+	page := newPage()
 	e.Renderer = NewTemplate()
 
 	e.GET("/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "index", data)
+		return c.Render(http.StatusOK, "index", page)
 	})
 
 	e.POST("/contacts", func(c echo.Context) error {
 		name := c.FormValue("name")
 		email := c.FormValue("email")
 
-		data.Contacts = append(data.Contacts, Contact{Name: name, Email: email})
+		if page.Data.hasEmail(email) {
+			FormData := newFormData()
+			FormData.Values["name"] = name
+			FormData.Values["email"] = email
+			FormData.Errors["email"] = "email already exists"
+			return c.Render(http.StatusUnprocessableEntity, "form", FormData)
+		}
 
-		return c.Render(http.StatusOK, "display", data)
+		page.Data.Contacts = append(page.Data.Contacts, Contact{Name: name, Email: email})
+
+		return c.Render(http.StatusOK, "display", page)
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
