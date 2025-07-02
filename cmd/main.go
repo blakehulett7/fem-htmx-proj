@@ -30,6 +30,15 @@ type Contact struct {
 
 type Contacts = []Contact
 
+func (d Data) hasEmail(email string) bool {
+	for _, contact := range d.Contacts {
+		if contact.Email == email {
+			return true
+		}
+	}
+	return false
+}
+
 type Data struct {
 	Contacts Contacts
 }
@@ -60,7 +69,7 @@ func main() {
 
 		data.Contacts = append(data.Contacts, Contact{Name: name, Email: email})
 
-		return c.Render(http.StatusOK, "index", data)
+		return c.Render(http.StatusOK, "display", data)
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
