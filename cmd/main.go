@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -23,9 +24,21 @@ func NewTemplate() *Templates {
 	}
 }
 
+var id = 0
+
 type Contact struct {
 	Name  string
 	Email string
+	Id    int
+}
+
+func newContact(name, email string) Contact {
+	id++
+	return Contact{
+		Name:  name,
+		Email: email,
+		Id:    id,
+	}
 }
 
 type Contacts = []Contact
@@ -46,8 +59,8 @@ type Data struct {
 func NewData() Data {
 	return Data{
 		Contacts: []Contact{
-			Contact{Name: "John", Email: "jd@gmail.com"},
-			Contact{Name: "Clara", Email: "cd@gmail.com"},
+			newContact("John", "jd@gmail.com"),
+			newContact("Clara", "cd@gmail.com")
 		},
 	}
 }
@@ -99,14 +112,19 @@ func main() {
 			return c.Render(http.StatusUnprocessableEntity, "form", FormData)
 		}
 
-		contact := Contact{
-			Name:  name,
-			Email: email,
-		}
-		page.Data.Contacts = append(page.Data.Contacts, Contact{Name: name, Email: email})
+		contact := newContact(name, email)
+		page.Data.Contacts = append(page.Data.Contacts, contact)
 
 		c.Render(200, "form", newFormData())
 		return c.Render(http.StatusOK, "outofband-contact", contact)
+	})
+
+	e.DELETE("/contacts/:id", func(c echo.Context) error {
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Invalid id")
+		}
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
