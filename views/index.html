@@ -58,3 +58,10 @@
     {{ end }}
 </div>
 {{ end }}
+
+{{ block "contact" . }}
+    <div>
+        Name: <span>{{ .Name }}</span>
+        Email: <span>{{ .Email }}</span>
+    </div>
+{{ end }}
