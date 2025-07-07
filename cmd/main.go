@@ -105,6 +105,7 @@ func main() {
 		}
 		page.Data.Contacts = append(page.Data.Contacts, Contact{Name: name, Email: email})
 
+		c.Render(200, "form", newFormData())
 		return c.Render(http.StatusOK, "outofband-contact", contact)
 	})
 
