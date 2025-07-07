@@ -99,9 +99,13 @@ func main() {
 			return c.Render(http.StatusUnprocessableEntity, "form", FormData)
 		}
 
+		contact := Contact{
+			Name:  name,
+			Email: email,
+		}
 		page.Data.Contacts = append(page.Data.Contacts, Contact{Name: name, Email: email})
 
-		return c.Render(http.StatusOK, "display", page.Data)
+		return c.Render(http.StatusOK, "outofband-contact", contact)
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))

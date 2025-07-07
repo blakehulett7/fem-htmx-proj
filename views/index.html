@@ -51,10 +51,7 @@
 {{ block "display" . }}
 <div id="contacts" style="display: flex; flex-direction: column;">
     {{ range .Contacts }}
-    <div>
-        Name: <span>{{ .Name }}</span>
-        Email: <span>{{ .Email }}</span>
-    </div>
+        {{ template "contact" . }}
     {{ end }}
 </div>
 {{ end }}
@@ -63,5 +60,11 @@
     <div>
         Name: <span>{{ .Name }}</span>
         Email: <span>{{ .Email }}</span>
+    </div>
+{{ end }}
+
+{{ block "outofband-contact" . }}
+    <div id="contacts" hx-swap-oob="afterbegin">
+        {{ template "contact" . }}
     </div>
 {{ end }}
