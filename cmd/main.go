@@ -52,6 +52,16 @@ func (d Data) hasEmail(email string) bool {
 	return false
 }
 
+func (d Data) indexOf(id int) int {
+	for i, contact := range d.Contacts {
+		if contact.Id == id {
+			return i
+		}
+	}
+
+	return -1
+}
+
 type Data struct {
 	Contacts Contacts
 }
@@ -60,7 +70,7 @@ func NewData() Data {
 	return Data{
 		Contacts: []Contact{
 			newContact("John", "jd@gmail.com"),
-			newContact("Clara", "cd@gmail.com")
+			newContact("Clara", "cd@gmail.com"),
 		},
 	}
 }
@@ -125,6 +135,14 @@ func main() {
 		if err != nil {
 			return c.String(http.StatusBadRequest, "Invalid id")
 		}
+
+		index := page.Data.indexOf(id)
+		if index == -1 {
+			return c.String(http.StatusNotFound, "Contact not found")
+		}
+
+		page.Data.Contacts = append(page.Data.Contacts[:index], page.Data.Contacts[index+1:]...)
+		return c.NoContent(http.StatusOK)
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
